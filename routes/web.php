@@ -6,10 +6,14 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\RegencyController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VillageController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -60,5 +64,37 @@ Route::middleware('auth')->group(function () {
         Route::get('roles/{role}/edit', [RoleController::class, 'edit'])->name('roles.edit')->middleware('permission:roles,update');
         Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update')->middleware('permission:roles,update');
         Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy')->middleware('permission:roles,delete');
+
+        // Provinces
+        Route::get('provinces', [ProvinceController::class, 'index'])->name('provinces.index');
+        Route::get('provinces/create', [ProvinceController::class, 'create'])->name('provinces.create')->middleware('permission:provinces,create');
+        Route::post('provinces', [ProvinceController::class, 'store'])->name('provinces.store')->middleware('permission:provinces,create');
+        Route::get('provinces/{province}/edit', [ProvinceController::class, 'edit'])->name('provinces.edit')->middleware('permission:provinces,update');
+        Route::put('provinces/{province}', [ProvinceController::class, 'update'])->name('provinces.update')->middleware('permission:provinces,update');
+        Route::delete('provinces/{province}', [ProvinceController::class, 'destroy'])->name('provinces.destroy')->middleware('permission:provinces,delete');
+
+        // Regencies
+        Route::get('regencies', [RegencyController::class, 'index'])->name('regencies.index');
+        Route::get('regencies/create', [RegencyController::class, 'create'])->name('regencies.create')->middleware('permission:regencies,create');
+        Route::post('regencies', [RegencyController::class, 'store'])->name('regencies.store')->middleware('permission:regencies,create');
+        Route::get('regencies/{regency}/edit', [RegencyController::class, 'edit'])->name('regencies.edit')->middleware('permission:regencies,update');
+        Route::put('regencies/{regency}', [RegencyController::class, 'update'])->name('regencies.update')->middleware('permission:regencies,update');
+        Route::delete('regencies/{regency}', [RegencyController::class, 'destroy'])->name('regencies.destroy')->middleware('permission:regencies,delete');
+
+        // Districts
+        Route::get('districts', [DistrictController::class, 'index'])->name('districts.index');
+        Route::get('districts/create', [DistrictController::class, 'create'])->name('districts.create')->middleware('permission:districts,create');
+        Route::post('districts', [DistrictController::class, 'store'])->name('districts.store')->middleware('permission:districts,create');
+        Route::get('districts/{district}/edit', [DistrictController::class, 'edit'])->name('districts.edit')->middleware('permission:districts,update');
+        Route::put('districts/{district}', [DistrictController::class, 'update'])->name('districts.update')->middleware('permission:districts,update');
+        Route::delete('districts/{district}', [DistrictController::class, 'destroy'])->name('districts.destroy')->middleware('permission:districts,delete');
+
+        // Villages
+        Route::get('villages', [VillageController::class, 'index'])->name('villages.index');
+        Route::get('villages/create', [VillageController::class, 'create'])->name('villages.create')->middleware('permission:villages,create');
+        Route::post('villages', [VillageController::class, 'store'])->name('villages.store')->middleware('permission:villages,create');
+        Route::get('villages/{village}/edit', [VillageController::class, 'edit'])->name('villages.edit')->middleware('permission:villages,update');
+        Route::put('villages/{village}', [VillageController::class, 'update'])->name('villages.update')->middleware('permission:villages,update');
+        Route::delete('villages/{village}', [VillageController::class, 'destroy'])->name('villages.destroy')->middleware('permission:villages,delete');
     });
 });

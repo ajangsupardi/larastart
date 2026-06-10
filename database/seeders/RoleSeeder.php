@@ -16,6 +16,10 @@ class RoleSeeder extends Seeder
             'permissions' => [
                 'users' => ['create', 'read', 'update', 'delete'],
                 'roles' => ['create', 'read', 'update', 'delete'],
+                'provinces' => ['create', 'read', 'update', 'delete'],
+                'regencies' => ['create', 'read', 'update', 'delete'],
+                'districts' => ['create', 'read', 'update', 'delete'],
+                'villages' => ['create', 'read', 'update', 'delete'],
             ],
         ]);
 
@@ -26,6 +30,10 @@ class RoleSeeder extends Seeder
             'permissions' => [
                 'users' => ['create', 'update', 'delete'],
                 'roles' => ['create', 'read', 'update'],
+                'provinces' => ['create', 'read', 'update', 'delete'],
+                'regencies' => ['create', 'read', 'update', 'delete'],
+                'districts' => ['create', 'read', 'update', 'delete'],
+                'villages' => ['create', 'read', 'update', 'delete'],
             ],
         ]);
 
@@ -36,6 +44,10 @@ class RoleSeeder extends Seeder
             'permissions' => [
                 'users' => ['create', 'read', 'update'],
                 'roles' => ['read'],
+                'provinces' => ['read'],
+                'regencies' => ['read'],
+                'districts' => ['read'],
+                'villages' => ['read'],
             ],
         ]);
 
@@ -46,6 +58,10 @@ class RoleSeeder extends Seeder
             'permissions' => [
                 'users' => ['read'],
                 'roles' => ['read'],
+                'provinces' => ['read'],
+                'regencies' => ['read'],
+                'districts' => ['read'],
+                'villages' => ['read'],
             ],
         ]);
     }

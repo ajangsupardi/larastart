@@ -17,6 +17,7 @@ const staticItems: SearchResult[] = [
     },
     { label: 'Users', href: '/users', type: 'page', icon: 'Users' },
     { label: 'Roles', href: '/roles', type: 'page', icon: 'ShieldCheck' },
+    { label: 'Regencies', href: '/regencies', type: 'page', icon: 'Building2' },
     { label: 'Edit Profile', href: '/profile', type: 'page', icon: 'User' },
 ];
 
@@ -25,6 +26,7 @@ export function getFilteredStaticItems(
 ): SearchResult[] {
     const canViewUsers = permissions.users?.length > 0;
     const canViewRoles = permissions.roles?.length > 0;
+    const canViewRegencies = permissions.regencies?.length > 0;
 
     return staticItems.filter((item) => {
         if (item.href === '/users') {
@@ -33,6 +35,10 @@ export function getFilteredStaticItems(
 
         if (item.href === '/roles') {
             return canViewRoles;
+        }
+
+        if (item.href === '/regencies') {
+            return canViewRegencies;
         }
 
         return true;

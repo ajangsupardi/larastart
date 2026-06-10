@@ -5,6 +5,10 @@
         Users,
         ShieldCheck,
         Settings,
+        MapPin,
+        Building2,
+        Landmark,
+        Home,
         ChevronLeft,
         ChevronRight,
         X,
@@ -29,6 +33,10 @@
             { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
             { label: 'Users', href: '/users', icon: Users },
             { label: 'Roles', href: '/roles', icon: ShieldCheck },
+            { label: 'Provinces', href: '/provinces', icon: MapPin },
+            { label: 'Regencies', href: '/regencies', icon: Building2 },
+            { label: 'Districts', href: '/districts', icon: Landmark },
+            { label: 'Villages', href: '/villages', icon: Home },
             { label: 'Settings', href: '#', icon: Settings },
         ] as NavItem[],
     } = $props();
@@ -38,6 +46,10 @@
     const permissions = $derived(page.props.auth?.permissions ?? {});
     const canViewUsers = $derived(permissions.users?.length > 0);
     const canViewRoles = $derived(permissions.roles?.length > 0);
+    const canViewProvinces = $derived(permissions.provinces?.length > 0);
+    const canViewRegencies = $derived(permissions.regencies?.length > 0);
+    const canViewDistricts = $derived(permissions.districts?.length > 0);
+    const canViewVillages = $derived(permissions.villages?.length > 0);
 
     let visibleItems = $derived(
         items.filter((item) => {
@@ -47,6 +59,22 @@
 
             if (item.href === '/roles') {
                 return canViewRoles;
+            }
+
+            if (item.href === '/provinces') {
+                return canViewProvinces;
+            }
+
+            if (item.href === '/regencies') {
+                return canViewRegencies;
+            }
+
+            if (item.href === '/districts') {
+                return canViewDistricts;
+            }
+
+            if (item.href === '/villages') {
+                return canViewVillages;
             }
 
             return true;

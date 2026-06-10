@@ -12,18 +12,6 @@ use Inertia\Response;
 
 class RoleController extends Controller
 {
-    private const RESOURCES = [
-        'users' => 'Users',
-        'roles' => 'Roles',
-    ];
-
-    private const ACTIONS = [
-        'create' => 'Create',
-        'read' => 'Read',
-        'update' => 'Update',
-        'delete' => 'Delete',
-    ];
-
     public function index(): Response
     {
         $roles = RoleResource::collection(
@@ -47,8 +35,8 @@ class RoleController extends Controller
     public function create(): Response
     {
         return Inertia::render('Roles/Create', [
-            'resources' => static::RESOURCES,
-            'actions' => static::ACTIONS,
+            'resources' => config('permissions.resources'),
+            'actions' => config('permissions.actions'),
         ]);
     }
 
@@ -76,8 +64,8 @@ class RoleController extends Controller
                 'description' => $role->description,
                 'permissions' => $role->permissions,
             ],
-            'resources' => static::RESOURCES,
-            'actions' => static::ACTIONS,
+            'resources' => config('permissions.resources'),
+            'actions' => config('permissions.actions'),
         ]);
     }
 

@@ -1,42 +1,53 @@
 <script lang="ts">
     import { Link, router, usePage } from '@inertiajs/svelte';
-    import {
-        Search,
-        ShieldCheck,
-        Pencil,
-        Trash2,
-        Users as UsersIcon,
-    } from '@lucide/svelte';
+    import { Search, Trash2, Pencil, Landmark } from '@lucide/svelte';
     import DeleteConfirmModal from '@/components/DeleteConfirmModal.svelte';
+    import Select2 from '@/components/Select2.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
 
-    type Role = {
+    type District = {
         id: number;
         name: string;
-        slug: string;
-        description: string | null;
-        permissions: Record<string, string[]>;
-        users_count: number;
+        regency: {
+            id: number;
+            name: string;
+            province: { id: number; name: string };
+        } | null;
+        regency_id: number;
         created_at: string;
     };
 
     let {
-        roles = { data: [] as Role[], meta: {} as Record<string, any> },
-        filters = {} as { search?: string },
+        districts = { data: [] as District[], meta: {} as Record<string, any> },
+        filters = {} as { search?: string; regency_id?: string },
+        regencies = [] as { id: number; name: string }[],
+        stats = [] as {
+            label: string;
+            value: string | number;
+            trend?: number;
+            icon?: string;
+        }[],
     } = $props();
 
     const page = usePage();
     const permissions = $derived(page.props.auth?.permissions ?? {});
-    const canCreate = $derived(permissions.roles?.includes('create') ?? false);
-    const canUpdate = $derived(permissions.roles?.includes('update') ?? false);
-    const canDelete = $derived(permissions.roles?.includes('delete') ?? false);
+    const canCreate = $derived(
+        permissions.districts?.includes('create') ?? false,
+    );
+    const canUpdate = $derived(
+        permissions.districts?.includes('update') ?? false,
+    );
+    const canDelete = $derived(
+        permissions.districts?.includes('delete') ?? false,
+    );
 
     // svelte-ignore state_referenced_locally
     let search = $state.raw(filters.search ?? '');
-    let deleteTarget = $state<Role | null>(null);
+    // svelte-ignore state_referenced_locally
+    let regencyFilter = $state.raw(filters.regency_id ?? '');
+    let deleteTarget = $state<District | null>(null);
     let deleting = $state(false);
-
     let searchTimeout: ReturnType<typeof setTimeout>;
 
     function onSearchInput(e: Event) {
@@ -45,18 +56,27 @@
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             router.get(
-                '/roles',
-                { search: value || undefined },
+                '/districts',
                 {
-                    preserveState: true,
-                    replace: true,
+                    search: value || undefined,
+                    regency_id: regencyFilter || undefined,
                 },
+                { preserveState: true, preserveScroll: true, replace: true },
             );
         }, 300);
     }
 
-    function confirmDelete(role: Role) {
-        deleteTarget = role;
+    function handleFilterChange(val: string) {
+        regencyFilter = val;
+        router.get(
+            '/districts',
+            { search: search || undefined, regency_id: val || undefined },
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
+    }
+
+    function confirmDelete(district: District) {
+        deleteTarget = district;
     }
 
     function executeDelete() {
@@ -65,7 +85,7 @@
         }
 
         deleting = true;
-        router.delete(`/roles/${deleteTarget.id}`, {
+        router.delete(`/districts/${deleteTarget.id}`, {
             onFinish: () => {
                 deleting = false;
                 deleteTarget = null;
@@ -83,33 +103,48 @@
 </script>
 
 <DashboardLayout
-    title="Roles"
-    description="Manage roles and their permissions."
+    title="Districts"
+    description="Manage all districts."
     breadcrumbs={[
         { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Roles' },
+        { label: 'Districts' },
     ]}
     actions={canCreate
-        ? [{ label: 'Create Role', href: '/roles/create', variant: 'primary' }]
+        ? [
+              {
+                  label: 'Create District',
+                  href: '/districts/create',
+                  variant: 'primary',
+              },
+          ]
         : []}
+    cards={stats}
 >
-    <!-- Search bar -->
-    <div class="mb-6">
-        <div
-            class="relative flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 pl-4 pr-1.5 text-sm transition-all dark:border-gray-700 dark:bg-gray-900"
-        >
-            <Search size={15} class="shrink-0 text-gray-400" />
-            <input
-                type="text"
-                placeholder="Search roles..."
-                value={search}
-                oninput={onSearchInput}
-                class="w-full border-0 bg-transparent py-1.5 text-sm outline-none placeholder:text-gray-400 dark:text-gray-100"
+    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div class="relative flex-1">
+            <div
+                class="relative flex items-center gap-2 rounded-lg border border-gray-200 bg-white pl-4 pr-3 py-2 text-sm transition-all dark:border-gray-600 dark:bg-gray-800"
+            >
+                <Search size={15} class="shrink-0 text-gray-400" />
+                <input
+                    type="text"
+                    placeholder="Search by name..."
+                    value={search}
+                    oninput={onSearchInput}
+                    class="w-full border-0 bg-transparent py-0.5 text-sm outline-none placeholder:text-gray-400 dark:text-white"
+                />
+            </div>
+        </div>
+        <div class="w-full sm:w-64">
+            <Select2
+                value={regencyFilter}
+                items={regencies.map((r) => ({ value: r.id, label: r.name }))}
+                placeholder="All Regencies"
+                onchange={handleFilterChange}
             />
         </div>
     </div>
 
-    <!-- Roles table -->
     <div
         class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
     >
@@ -121,15 +156,19 @@
                     >
                         <th
                             class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300"
-                            >Role</th
+                            >Name</th
                         >
                         <th
                             class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300"
-                            >Users</th
+                            >Regency</th
                         >
                         <th
                             class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300"
-                            >Created</th
+                            >Province</th
+                        >
+                        <th
+                            class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300"
+                            >Created At</th
                         >
                         <th
                             class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300"
@@ -138,104 +177,77 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                    {#each roles.data as role (role.id)}
+                    {#each districts.data as district (district.id)}
                         <tr
                             class="group transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
                         >
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400"
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-violet-500/60 text-xs font-bold text-white shadow-sm"
                                     >
-                                        <ShieldCheck size={18} />
+                                        <Landmark size={16} />
                                     </div>
-                                    <div>
-                                        <span
-                                            class="font-medium text-gray-900 dark:text-gray-100"
-                                            >{role.name}</span
-                                        >
-                                        {#if role.description}
-                                            <p
-                                                class="mt-0.5 text-xs text-gray-500 dark:text-gray-400"
-                                            >
-                                                {role.description}
-                                            </p>
-                                        {/if}
-                                    </div>
+                                    <span
+                                        class="font-medium text-gray-900 dark:text-gray-100"
+                                        >{district.name}</span
+                                    >
                                 </div>
                             </td>
                             <td class="px-6 py-4">
                                 <span
-                                    class="inline-flex items-center gap-1 text-gray-600 dark:text-gray-400"
+                                    class="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-400/20 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-600/20"
                                 >
-                                    <UsersIcon size={14} />
-                                    {role.users_count}
+                                    {district.regency?.name ?? '-'}
                                 </span>
                             </td>
                             <td
                                 class="px-6 py-4 text-gray-500 dark:text-gray-400"
-                                >{formatDate(role.created_at)}</td
+                                >{district.regency?.province?.name ?? '-'}</td
+                            >
+                            <td
+                                class="px-6 py-4 text-gray-500 dark:text-gray-400"
+                                >{formatDate(district.created_at)}</td
                             >
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
                                     {#if canUpdate}
                                         <Link
-                                            href={`/roles/${role.id}/edit`}
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:text-gray-900 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+                                            href={`/districts/${district.id}/edit`}
+                                            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
                                         >
-                                            <Pencil size={14} />
-                                            Edit
+                                            <Pencil size={14} /> Edit
                                         </Link>
                                     {/if}
                                     {#if canDelete}
                                         <button
-                                            onclick={() => confirmDelete(role)}
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-900 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-950"
+                                            onclick={() =>
+                                                confirmDelete(district)}
+                                            class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-900 dark:bg-gray-800 dark:text-red-400"
                                         >
-                                            <Trash2 size={14} />
-                                            Delete
+                                            <Trash2 size={14} /> Delete
                                         </button>
-                                    {/if}
-                                    {#if !canUpdate && !canDelete}
-                                        <span
-                                            class="text-xs text-gray-400 italic"
-                                            >No actions available</span
-                                        >
                                     {/if}
                                 </div>
                             </td>
                         </tr>
                     {:else}
                         <tr>
-                            <td colspan="4" class="px-6 py-16 text-center">
+                            <td colspan="5" class="px-6 py-16 text-center">
                                 <div class="flex flex-col items-center gap-3">
-                                    <ShieldCheck
+                                    <Landmark
                                         size={40}
                                         class="text-gray-300 dark:text-gray-600"
                                     />
-                                    <div>
-                                        <p
-                                            class="text-sm font-medium text-gray-900 dark:text-gray-100"
-                                        >
-                                            {#if filters.search}
-                                                No results found
-                                            {:else}
-                                                No roles yet
-                                            {/if}
-                                        </p>
-                                        <p
-                                            class="mt-1 text-sm text-gray-500 dark:text-gray-400"
-                                        >
-                                            {#if filters.search}
-                                                No roles matching "<strong
-                                                    >{filters.search}</strong
-                                                >"
-                                            {:else}
-                                                Create your first role to get
-                                                started.
-                                            {/if}
-                                        </p>
-                                    </div>
+                                    <p
+                                        class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                                    >
+                                        {#if filters.search || filters.regency_id}
+                                            No results found
+                                        {:else}
+                                            No districts yet
+                                        {/if}
+                                    </p>
                                 </div>
                             </td>
                         </tr>
@@ -244,34 +256,33 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        {#if roles.meta && roles.meta.last_page > 1}
+        {#if districts.meta && districts.meta.last_page > 1}
             <div
                 class="flex flex-col items-center justify-between gap-4 border-t border-gray-200 px-6 py-4 sm:flex-row dark:border-gray-800"
             >
                 <p class="text-sm text-gray-500 dark:text-gray-400">
                     Showing <span
                         class="font-medium text-gray-700 dark:text-gray-300"
-                        >{roles.meta.from}</span
+                        >{districts.meta.from}</span
                     >
                     to
                     <span class="font-medium text-gray-700 dark:text-gray-300"
-                        >{roles.meta.to}</span
+                        >{districts.meta.to}</span
                     >
                     of
                     <span class="font-medium text-gray-700 dark:text-gray-300"
-                        >{roles.meta.total}</span
+                        >{districts.meta.total}</span
                     > entries
                 </p>
                 <div class="flex items-center gap-1.5">
-                    {#each roles.meta.links as link (link.label)}
+                    {#each districts.meta.links as link (link.label)}
                         {#if link.url}
                             <Link
                                 href={link.url}
                                 class={cn(
                                     'rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
                                     link.active
-                                        ? 'bg-indigo-600 text-white shadow-sm'
+                                        ? 'bg-brand text-white shadow-sm'
                                         : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800',
                                 )}
                             >
@@ -295,8 +306,8 @@
 
 <DeleteConfirmModal
     open={deleteTarget !== null}
-    title="Delete Role"
-    message="This will permanently remove this role."
+    title="Delete District"
+    message="This will permanently remove this district and all associated data."
     itemName={deleteTarget?.name ?? ''}
     processing={deleting}
     onclose={() => {

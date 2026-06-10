@@ -2,15 +2,29 @@
 
 namespace Database\Seeders;
 
+use App\Models\District;
+use App\Models\Province;
+use App\Models\Regency;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Village;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Download kodepos data if not exists
+        $csvPath = storage_path('app/kodepos/kodepos.csv');
+        if (! file_exists($csvPath)) {
+            $this->command->call('app:download-kodepos');
+        }
+
         $this->call(RoleSeeder::class);
+        $this->call(ProvinceSeeder::class);
+        $this->call(RegencySeeder::class);
+        $this->call(DistrictSeeder::class);
+        $this->call(VillageSeeder::class);
 
         $superAdminRole = Role::where('slug', 'super-admin')->first();
         $adminRole = Role::where('slug', 'admin')->first();
@@ -40,5 +54,11 @@ class DatabaseSeeder extends Seeder
 
         User::factory(5)->create(['created_by' => $superAdmin->id])
             ->each(fn ($user) => $user->roles()->attach($viewerRole));
+
+        // Set created_by = 1 for all geographic data
+        Province::query()->update(['created_by' => $superAdmin->id]);
+        Regency::query()->update(['created_by' => $superAdmin->id]);
+        District::query()->update(['created_by' => $superAdmin->id]);
+        Village::query()->update(['created_by' => $superAdmin->id]);
     }
 }
