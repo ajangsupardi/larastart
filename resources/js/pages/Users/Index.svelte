@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Link, router, usePage } from '@inertiajs/svelte';
-    import { Search, Trash2, Pencil, Users as UsersIcon } from '@lucide/svelte';
+    import { Search, Trash2, Pencil, Lock, Users as UsersIcon } from '@lucide/svelte';
     import DeleteConfirmModal from '@/components/DeleteConfirmModal.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
@@ -9,7 +9,10 @@
         id: number;
         name: string;
         email: string;
+        avatar: string | null;
+        avatar_url: string | null;
         email_verified_at: string | null;
+        is_system: boolean;
         roles: { id: number; name: string }[];
         created_at: string;
     };
@@ -27,9 +30,11 @@
 
     const page = usePage();
     const permissions = $derived(page.props.auth?.permissions ?? {});
+    const currentUserId = $derived(page.props.auth?.user?.id);
     const canCreate = $derived(permissions.users?.includes('create') ?? false);
     const canUpdate = $derived(permissions.users?.includes('update') ?? false);
     const canDelete = $derived(permissions.users?.includes('delete') ?? false);
+    const canDeleteUser = $derived((userId: number) => canDelete && userId !== currentUserId);
 
     // svelte-ignore state_referenced_locally
     let search = $state.raw(filters.search ?? '');
@@ -161,11 +166,19 @@
                         >
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/60 text-xs font-bold text-white shadow-sm"
-                                    >
-                                        {getInitials(user.name)}
-                                    </div>
+                                    {#if user.avatar_url}
+                                        <img
+                                            src={user.avatar_url}
+                                            alt={user.name}
+                                            class="h-9 w-9 shrink-0 rounded-full object-cover shadow-sm"
+                                        />
+                                    {:else}
+                                        <div
+                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/60 text-xs font-bold text-white shadow-sm"
+                                        >
+                                            {getInitials(user.name)}
+                                        </div>
+                                    {/if}
                                     <span
                                         class="font-medium text-gray-900 dark:text-gray-100"
                                         >{user.name}</span
@@ -229,7 +242,7 @@
                                             Edit
                                         </Link>
                                     {/if}
-                                    {#if canDelete}
+                                    {#if canDelete && !user.is_system && user.id !== currentUserId}
                                         <button
                                             onclick={() => confirmDelete(user)}
                                             class="inline-flex items-center justify-center rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
@@ -238,7 +251,15 @@
                                             <Trash2 size={15} />
                                         </button>
                                     {/if}
-                                    {#if !canUpdate && !canDelete}
+                                    {#if user.is_system}
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                                        >
+                                            <Lock size={12} />
+                                            System
+                                        </span>
+                                    {/if}
+                                    {#if !canUpdate && !canDelete && !user.is_system}
                                         <span
                                             class="text-xs text-gray-400 italic"
                                             >No actions available</span

@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Intervention\Image\Laravel\Facades\Image;
 
 class UserController extends Controller
 {
@@ -65,7 +69,18 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        User::create([...$request->validated(), 'created_by' => auth()->id()]);
+        $data = $request->validated();
+
+        if ($request->hasFile('avatar')) {
+            $filename = 'avatars/'.uniqid().'.webp';
+            $image = Image::decodeSplFileInfo($request->file('avatar'));
+            $image->cover(400, 400);
+            Storage::disk('public')->put($filename, (string) $image->encodeUsingFileExtension('webp', quality: 80));
+            $data['avatar'] = $filename;
+        }
+
+        $user = User::create([...$data, 'created_by' => auth()->id()]);
+        $user->roles()->attach(Role::where('slug', 'user')->first());
 
         return to_route('users.index')
             ->with('success', 'User created successfully.');
@@ -78,6 +93,8 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'avatar' => $user->avatar,
+                'avatar_url' => $user->avatar_url,
             ],
         ]);
     }
@@ -96,8 +113,40 @@ class UserController extends Controller
             ->with('success', 'User updated successfully.');
     }
 
+    public function updateAvatar(Request $request, User $user)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:5120'],
+        ]);
+
+        $filename = 'avatars/'.uniqid().'.webp';
+        $disk = Storage::disk('public');
+
+        $image = Image::decodeSplFileInfo($request->file('avatar'));
+        $image->cover(400, 400);
+
+        $disk->put($filename, (string) $image->encodeUsingFileExtension('webp', quality: 80));
+
+        if ($user->avatar !== null) {
+            $disk->delete($user->avatar);
+        }
+
+        $user->update(['avatar' => $filename]);
+
+        return to_route('users.index')
+            ->with('success', 'Avatar updated successfully.');
+    }
+
     public function destroy(User $user)
     {
+        if ($user->is_system) {
+            return back()->withErrors(['error' => 'System users cannot be deleted.']);
+        }
+
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['error' => 'You cannot delete your own account.']);
+        }
+
         $user->delete();
 
         return to_route('users.index')

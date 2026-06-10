@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
         Route::get('search', SearchController::class)->name('search');
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
 
         // Users
         Route::get('users', [UserController::class, 'index'])->name('users.index');
@@ -57,6 +58,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit')->middleware('permission:users,update');
         Route::put('users/{user}', [UserController::class, 'update'])->name('users.update')->middleware('permission:users,update');
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:users,delete');
+        Route::post('users/{user}/avatar', [UserController::class, 'updateAvatar'])->name('users.avatar')->middleware('permission:users,update');
 
         // Roles
         Route::get('roles', [RoleController::class, 'index'])->name('roles.index');

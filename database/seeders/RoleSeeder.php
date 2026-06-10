@@ -41,33 +41,10 @@ class RoleSeeder extends Seeder
         ]);
 
         Role::create([
-            'name' => 'Editor',
-            'slug' => 'editor',
-            'description' => 'Can manage users.',
-            'permissions' => [
-                'users' => ['create', 'read', 'update'],
-                'roles' => ['read'],
-                'provinces' => ['read'],
-                'regencies' => ['read'],
-                'districts' => ['read'],
-                'villages' => ['read'],
-                'occupations' => ['read'],
-            ],
-        ]);
-
-        Role::create([
-            'name' => 'Viewer',
-            'slug' => 'viewer',
-            'description' => 'Read-only access.',
-            'permissions' => [
-                'users' => ['read'],
-                'roles' => ['read'],
-                'provinces' => ['read'],
-                'regencies' => ['read'],
-                'districts' => ['read'],
-                'villages' => ['read'],
-                'occupations' => ['read'],
-            ],
+            'name' => 'User',
+            'slug' => 'user',
+            'description' => 'No access to admin resources.',
+            'permissions' => [],
         ]);
     }
 }

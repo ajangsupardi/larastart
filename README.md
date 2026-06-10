@@ -19,13 +19,14 @@ A production-ready Laravel 13 starter kit with Inertia.js v3 + Svelte 5, featuri
 
 ## Features
 
-- **Role-Based Access Control** — Custom RBAC with 4 permission tiers (Super Admin, Admin, Editor, Viewer)
+- **Role-Based Access Control** — Custom RBAC with 3 permission tiers (Super Administrator, Administrator, User)
 - **User & Role Management** — Full CRUD with validation and search
 - **Global Search** — Debounced search with `Ctrl+K` keyboard shortcut
 - **Dark Mode** — Light, dark, and system theme with localStorage persistence
 - **Responsive Layout** — Collapsible sidebar, mobile hamburger menu
 - **Authentication** — Login, register, forgot/reset password, email verification
-- **Profile Management** — Edit profile with password update
+- **Avatar Upload** — Profile picture with Cropper.js crop modal, resized to 400×400 WebP
+- **Profile Management** — Edit profile, update password, and upload avatar with crop
 - **Type-Safe Routes** — Wayfinder auto-generates TypeScript route helpers
 
 ## Installation
@@ -66,10 +67,9 @@ After seeding, the following accounts are available:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Super Admin | `super@example.com` | `password` |
-| Admin | `admin@example.com` | `password` |
-| Editor | `editor@example.com` | `password` |
-| Viewer | `viewer@example.com` | `password` |
+| Super Administrator | `super@example.com` | `password` |
+| Administrator | `admin@example.com` | `password` |
+| User (×5) | `user1@example.com` – `user5@example.com` | `password` |
 
 ## Development
 
@@ -135,10 +135,13 @@ The RBAC system uses a `permissions` JSON field on roles, structured as `{ resou
 
 | Role | Users | Roles | Permissions |
 |------|-------|-------|-------------|
-| **Super Admin** | CRUD | CRUD | Full access to all resources |
-| **Admin** | R, U, D | R | No user creation |
-| **Editor** | CRUD | R | Can manage users, read roles |
-| **Viewer** | R | R | Read-only access |
+| **Super Administrator** | CRUD | CRUD | Full access to all resources |
+| **Administrator** | R, U, D | R | Manage content, users, and roles |
+| **User** | - | - | No admin permissions |
+
+### System Protection
+
+Users with `is_system = true` are protected from deletion. The default Super Administrator account is a system user and cannot be removed via the UI or API.
 
 ### Protected Routes
 

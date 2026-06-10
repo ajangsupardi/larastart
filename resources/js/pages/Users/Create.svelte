@@ -6,10 +6,66 @@
         UserPlus,
         Mail,
         Lock,
+        Camera,
     } from '@lucide/svelte';
     import Input from '@/components/Input.svelte';
+    import AvatarCropModal from '@/components/AvatarCropModal.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
+
+    let showCropModal = $state(false);
+    let selectedImageSrc = $state('');
+    let fileInputEl: HTMLInputElement | undefined = $state();
+    let avatarFileInputEl: HTMLInputElement | undefined = $state();
+
+    function handleFileSelect() {
+        fileInputEl?.click();
+    }
+
+    function onFileSelected(e: Event) {
+        const input = e.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        if (!validTypes.includes(file.type)) {
+            alert('Only PNG, JPG, and JPEG files are allowed.');
+            input.value = '';
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB.');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            selectedImageSrc = e.target?.result as string;
+            showCropModal = true;
+        };
+        reader.readAsDataURL(file);
+        input.value = '';
+    }
+
+    function onCropSuccess() {
+        showCropModal = false;
+        selectedImageSrc = '';
+    }
+
+    function onCropClose() {
+        showCropModal = false;
+        selectedImageSrc = '';
+    }
+
+    function onAvatarCropped(croppedFile: File) {
+        if (avatarFileInputEl) {
+            const dt = new DataTransfer();
+            dt.items.add(croppedFile);
+            avatarFileInputEl.files = dt.files;
+        }
+    }
 </script>
 
 <DashboardLayout
@@ -24,6 +80,50 @@
     <div class="mx-auto max-w-2xl">
         <Form action="/users" method="post" resetOnSuccess setDefaultsOnSuccess>
             {#snippet children({ errors, processing, wasSuccessful })}
+                <!-- Avatar -->
+                <div
+                    class="mb-6 flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"
+                >
+                    <div class="relative shrink-0">
+                        <div
+                            class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/60 text-xl font-bold text-white shadow-md"
+                        >
+                            <UserPlus size={24} />
+                        </div>
+                        <button
+                            type="button"
+                            onclick={handleFileSelect}
+                            class="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gray-800 text-white shadow-sm transition-colors hover:bg-gray-700 dark:border-gray-900"
+                            title="Set photo"
+                        >
+                            <Camera size={12} />
+                        </button>
+                        <input
+                            type="file"
+                            bind:this={fileInputEl}
+                            onchange={onFileSelected}
+                            accept="image/png,image/jpg,image/jpeg"
+                            class="hidden"
+                        />
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            Profile Photo
+                        </h3>
+                        <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                            Optional. Crop to 400×400 on next step.
+                        </p>
+                    </div>
+                </div>
+
+                <input
+                    type="file"
+                    name="avatar"
+                    bind:this={avatarFileInputEl}
+                    class="hidden"
+                    accept="image/webp"
+                />
+
                 <!-- Profile Information -->
                 <div
                     class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
@@ -116,20 +216,6 @@
                     </div>
                 </div>
 
-                {#if wasSuccessful}
-                    <div
-                        class="mt-6 rounded-xl border border-green-200 bg-green-50 px-6 py-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
-                    >
-                        <div class="flex items-center gap-2">
-                            <span
-                                class="flex h-5 w-5 items-center justify-center rounded-full bg-green-200 text-green-700 dark:bg-green-700 dark:text-green-200"
-                                >&#10003;</span
-                            >
-                            User created successfully!
-                        </div>
-                    </div>
-                {/if}
-
                 <!-- Form Actions -->
                 <div
                     class="mt-6 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900"
@@ -165,3 +251,11 @@
         </Form>
     </div>
 </DashboardLayout>
+
+<AvatarCropModal
+    open={showCropModal}
+    imageSrc={selectedImageSrc}
+    onclose={onCropClose}
+    onsuccess={onCropSuccess}
+    oncropsave={onAvatarCropped}
+/>

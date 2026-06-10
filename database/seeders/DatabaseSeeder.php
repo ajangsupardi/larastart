@@ -30,12 +30,12 @@ class DatabaseSeeder extends Seeder
 
         $superAdminRole = Role::where('slug', 'super-admin')->first();
         $adminRole = Role::where('slug', 'admin')->first();
-        $editorRole = Role::where('slug', 'editor')->first();
-        $viewerRole = Role::where('slug', 'viewer')->first();
+        $userRole = Role::where('slug', 'user')->first();
 
         $superAdmin = User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'super@example.com',
+            'is_system' => true,
         ]);
         $superAdmin->roles()->attach($superAdminRole);
         $superAdmin->update(['created_by' => $superAdmin->id]);
@@ -47,15 +47,8 @@ class DatabaseSeeder extends Seeder
         ]);
         $adminUser->roles()->attach($adminRole);
 
-        $editorUser = User::factory()->create([
-            'name' => 'Editor User',
-            'email' => 'editor@example.com',
-            'created_by' => $superAdmin->id,
-        ]);
-        $editorUser->roles()->attach($editorRole);
-
         User::factory(5)->create(['created_by' => $superAdmin->id])
-            ->each(fn ($user) => $user->roles()->attach($viewerRole));
+            ->each(fn ($user) => $user->roles()->attach($userRole));
 
         // Set created_by = 1 for all geographic data
         Province::query()->update(['created_by' => $superAdmin->id]);

@@ -360,11 +360,19 @@
                     onclick={() => (userMenuOpen = !userMenuOpen)}
                     class="flex items-center rounded-lg p-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                    <div
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/60 text-sm font-medium text-white"
-                    >
-                        {page.props.auth.user.name.charAt(0).toUpperCase()}
-                    </div>
+                    {#if page.props.auth.user.avatar_url}
+                        <img
+                            src={page.props.auth.user.avatar_url}
+                            alt={page.props.auth.user.name}
+                            class="h-8 w-8 rounded-full object-cover"
+                        />
+                    {:else}
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/60 text-sm font-medium text-white"
+                        >
+                            {page.props.auth.user.name.charAt(0).toUpperCase()}
+                        </div>
+                    {/if}
                 </button>
 
                 {#if userMenuOpen}
