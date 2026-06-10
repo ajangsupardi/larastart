@@ -21,7 +21,8 @@ class VillageController extends Controller
             Village::query()
                 ->with('district.regency.province')
                 ->when($search, fn ($query, $search) => $query
-                    ->where('name', 'like', '%'.$search.'%'))
+                    ->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('postal_code', 'like', '%'.$search.'%'))
                 ->when($districtId, fn ($query, $districtId) => $query
                     ->where('district_id', $districtId))
                 ->orderBy('created_at', 'desc')

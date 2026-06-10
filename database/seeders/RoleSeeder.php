@@ -13,6 +13,7 @@ class RoleSeeder extends Seeder
             'name' => 'Super Administrator',
             'slug' => 'super-admin',
             'description' => 'Full access to all resources.',
+            'is_system' => true,
             'permissions' => [
                 'users' => ['create', 'read', 'update', 'delete'],
                 'roles' => ['create', 'read', 'update', 'delete'],
@@ -20,6 +21,7 @@ class RoleSeeder extends Seeder
                 'regencies' => ['create', 'read', 'update', 'delete'],
                 'districts' => ['create', 'read', 'update', 'delete'],
                 'villages' => ['create', 'read', 'update', 'delete'],
+                'occupations' => ['create', 'read', 'update', 'delete'],
             ],
         ]);
 
@@ -34,6 +36,7 @@ class RoleSeeder extends Seeder
                 'regencies' => ['create', 'read', 'update', 'delete'],
                 'districts' => ['create', 'read', 'update', 'delete'],
                 'villages' => ['create', 'read', 'update', 'delete'],
+                'occupations' => ['create', 'read', 'update', 'delete'],
             ],
         ]);
 
@@ -48,6 +51,7 @@ class RoleSeeder extends Seeder
                 'regencies' => ['read'],
                 'districts' => ['read'],
                 'villages' => ['read'],
+                'occupations' => ['read'],
             ],
         ]);
 
@@ -62,6 +66,7 @@ class RoleSeeder extends Seeder
                 'regencies' => ['read'],
                 'districts' => ['read'],
                 'villages' => ['read'],
+                'occupations' => ['read'],
             ],
         ]);
     }

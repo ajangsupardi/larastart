@@ -20,6 +20,7 @@ return [
         'regencies' => 'Regencies',
         'districts' => 'Districts',
         'villages' => 'Villages',
+        'occupations' => 'Occupations',
     ],
 
     /*

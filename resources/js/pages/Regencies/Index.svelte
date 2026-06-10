@@ -164,7 +164,7 @@
                             >Created At</th
                         >
                         <th
-                            class="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300"
+                            class="px-6 py-4 text-right font-semibold text-gray-700 dark:text-gray-300"
                             >Actions</th
                         >
                     </tr>
@@ -205,11 +205,11 @@
                                 >{formatDate(regency.created_at)}</td
                             >
                             <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center justify-end gap-2">
                                     {#if canUpdate}
                                         <Link
                                             href={`/regencies/${regency.id}/edit`}
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                                            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                                         >
                                             <Pencil size={14} /> Edit
                                         </Link>
@@ -218,9 +218,10 @@
                                         <button
                                             onclick={() =>
                                                 confirmDelete(regency)}
-                                            class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 shadow-sm transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-900 dark:bg-gray-800 dark:text-red-400"
+                                            class="inline-flex items-center justify-center rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                                            title="Delete regency"
                                         >
-                                            <Trash2 size={14} /> Delete
+                                            <Trash2 size={15} />
                                         </button>
                                     {/if}
                                 </div>
@@ -291,7 +292,6 @@
                                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                                 {@html link.label}
                             </span>
-                            >
                         {/if}
                     {/each}
                 </div>

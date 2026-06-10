@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\RegencyController;
@@ -96,5 +97,13 @@ Route::middleware('auth')->group(function () {
         Route::get('villages/{village}/edit', [VillageController::class, 'edit'])->name('villages.edit')->middleware('permission:villages,update');
         Route::put('villages/{village}', [VillageController::class, 'update'])->name('villages.update')->middleware('permission:villages,update');
         Route::delete('villages/{village}', [VillageController::class, 'destroy'])->name('villages.destroy')->middleware('permission:villages,delete');
+
+        // Occupations
+        Route::get('occupations', [OccupationController::class, 'index'])->name('occupations.index');
+        Route::get('occupations/create', [OccupationController::class, 'create'])->name('occupations.create')->middleware('permission:occupations,create');
+        Route::post('occupations', [OccupationController::class, 'store'])->name('occupations.store')->middleware('permission:occupations,create');
+        Route::get('occupations/{occupation}/edit', [OccupationController::class, 'edit'])->name('occupations.edit')->middleware('permission:occupations,update');
+        Route::put('occupations/{occupation}', [OccupationController::class, 'update'])->name('occupations.update')->middleware('permission:occupations,update');
+        Route::delete('occupations/{occupation}', [OccupationController::class, 'destroy'])->name('occupations.destroy')->middleware('permission:occupations,delete');
     });
 });

@@ -9,6 +9,7 @@
         Building2,
         Landmark,
         Home,
+        Briefcase,
         ChevronLeft,
         ChevronRight,
         X,
@@ -26,18 +27,20 @@
         label: string;
         href: string;
         icon: typeof LayoutDashboard;
+        group?: string;
     };
 
     let {
         items = [
-            { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-            { label: 'Users', href: '/users', icon: Users },
-            { label: 'Roles', href: '/roles', icon: ShieldCheck },
-            { label: 'Provinces', href: '/provinces', icon: MapPin },
-            { label: 'Regencies', href: '/regencies', icon: Building2 },
-            { label: 'Districts', href: '/districts', icon: Landmark },
-            { label: 'Villages', href: '/villages', icon: Home },
-            { label: 'Settings', href: '#', icon: Settings },
+            { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, group: 'Main' },
+            { label: 'Users', href: '/users', icon: Users, group: 'Access Control' },
+            { label: 'Roles', href: '/roles', icon: ShieldCheck, group: 'Access Control' },
+            { label: 'Provinces', href: '/provinces', icon: MapPin, group: 'Geography' },
+            { label: 'Regencies', href: '/regencies', icon: Building2, group: 'Geography' },
+            { label: 'Districts', href: '/districts', icon: Landmark, group: 'Geography' },
+            { label: 'Villages', href: '/villages', icon: Home, group: 'Geography' },
+            { label: 'Occupations', href: '/occupations', icon: Briefcase, group: 'Reference' },
+            { label: 'Settings', href: '#', icon: Settings, group: 'System' },
         ] as NavItem[],
     } = $props();
 
@@ -50,6 +53,7 @@
     const canViewRegencies = $derived(permissions.regencies?.length > 0);
     const canViewDistricts = $derived(permissions.districts?.length > 0);
     const canViewVillages = $derived(permissions.villages?.length > 0);
+    const canViewOccupations = $derived(permissions.occupations?.length > 0);
 
     let visibleItems = $derived(
         items.filter((item) => {
@@ -77,9 +81,31 @@
                 return canViewVillages;
             }
 
+            if (item.href === '/occupations') {
+                return canViewOccupations;
+            }
+
             return true;
         }),
     );
+
+    let groupedItems = $derived.by(() => {
+        const groups: { group: string; items: NavItem[] }[] = [];
+        let currentGroup = '';
+
+        for (const item of visibleItems) {
+            const group = item.group ?? '';
+
+            if (group !== currentGroup) {
+                currentGroup = group;
+                groups.push({ group, items: [] });
+            }
+
+            groups[groups.length - 1].items.push(item);
+        }
+
+        return groups;
+    });
 </script>
 
 <!-- Mobile overlay backdrop -->
@@ -149,28 +175,42 @@
         </button>
     </div>
 
-    <nav class="flex-1 space-y-1 overflow-y-auto p-3">
-        {#each visibleItems as item (item.href)}
-            <Link
-                href={item.href}
-                onclick={() => {
-                    if (window.innerWidth < 1024) {
-                        toggleSidebar();
-                    }
-                }}
-                class={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    page.url === item.href
-                        ? 'bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100',
-                    $sidebarCollapsed && 'justify-center px-0',
-                )}
-            >
-                <item.icon size={20} class="shrink-0" />
-                {#if !$sidebarCollapsed}
-                    <span>{item.label}</span>
-                {/if}
-            </Link>
+    <nav class="flex-1 overflow-y-auto p-3">
+        {#each groupedItems as group, gi}
+            {#if gi > 0}
+                <div class="my-2 border-t border-gray-200 dark:border-gray-800"></div>
+            {/if}
+            {#if !$sidebarCollapsed && group.group}
+                <p
+                    class="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                >
+                    {group.group}
+                </p>
+            {/if}
+            <div class="space-y-1">
+                {#each group.items as item (item.href)}
+                    <Link
+                        href={item.href}
+                        onclick={() => {
+                            if (window.innerWidth < 1024) {
+                                toggleSidebar();
+                            }
+                        }}
+                        class={cn(
+                            'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                            page.url === item.href
+                                ? 'bg-brand/10 text-brand dark:bg-brand/10 dark:text-brand'
+                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100',
+                            $sidebarCollapsed && 'justify-center px-0',
+                        )}
+                    >
+                        <item.icon size={20} class="shrink-0" />
+                        {#if !$sidebarCollapsed}
+                            <span>{item.label}</span>
+                        {/if}
+                    </Link>
+                {/each}
+            </div>
         {/each}
     </nav>
 

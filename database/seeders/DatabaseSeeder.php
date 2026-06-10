@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\District;
+use App\Models\Occupation;
 use App\Models\Province;
 use App\Models\Regency;
 use App\Models\Role;
@@ -25,6 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RegencySeeder::class);
         $this->call(DistrictSeeder::class);
         $this->call(VillageSeeder::class);
+        $this->call(OccupationSeeder::class);
 
         $superAdminRole = Role::where('slug', 'super-admin')->first();
         $adminRole = Role::where('slug', 'admin')->first();
@@ -60,5 +62,6 @@ class DatabaseSeeder extends Seeder
         Regency::query()->update(['created_by' => $superAdmin->id]);
         District::query()->update(['created_by' => $superAdmin->id]);
         Village::query()->update(['created_by' => $superAdmin->id]);
+        Occupation::query()->update(['created_by' => $superAdmin->id]);
     }
 }

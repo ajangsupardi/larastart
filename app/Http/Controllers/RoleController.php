@@ -84,6 +84,10 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        if ($role->is_system) {
+            return back()->withErrors(['error' => 'Cannot delete system role.']);
+        }
+
         $role->delete();
 
         return to_route('roles.index')
