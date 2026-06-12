@@ -21,6 +21,7 @@ class RoleController extends Controller
                 ->when(request('search'), fn ($query, $search) => $query
                     ->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($search).'%']))
                 ->withCount('users')
+                ->with('creator')
                 ->orderBy('created_at', 'desc')
                 ->paginate(10)
                 ->withQueryString()

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     protected $appends = ['avatar_url'];
 
@@ -52,6 +53,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Role::class)->withTimestamps();
     }
 
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -64,6 +70,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasPermission(string $resource, string $action): bool
     {
-        return $this->roles->some(fn ($role) => $role->hasPermission($resource, $action));
+        return $this->roles()->whereNull('deleted_at')->get()->some(fn ($role) => $role->hasPermission($resource, $action));
     }
 }

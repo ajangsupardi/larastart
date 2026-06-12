@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,14 +28,12 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(UpdateProfileRequest $request)
+    public function update(UpdateProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
         $data = $request->validated();
 
-        if (isset($data['password']) && ! blank($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
+        if (blank($data['password'] ?? null)) {
             unset($data['password']);
         }
 
@@ -45,7 +43,7 @@ class ProfileController extends Controller
             ->with('success', 'Profile updated successfully.');
     }
 
-    public function updateAvatar(Request $request)
+    public function updateAvatar(Request $request): RedirectResponse
     {
         $request->validate([
             'avatar' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:5120'],
@@ -54,7 +52,6 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $filename = 'avatars/'.uniqid().'.webp';
-
         $disk = Storage::disk('public');
 
         $image = Image::decodeSplFileInfo($request->file('avatar'));

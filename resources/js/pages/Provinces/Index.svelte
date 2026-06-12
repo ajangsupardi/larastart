@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Link, router, usePage } from '@inertiajs/svelte';
-    import { Search, Trash2, Pencil, MapPin } from '@lucide/svelte';
+    import { Search, Trash2, Pencil, MapPin, Download } from '@lucide/svelte';
     import DeleteConfirmModal from '@/components/DeleteConfirmModal.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
@@ -115,6 +115,13 @@
                 />
             </div>
         </div>
+        <a
+            href="/export/provinces?search={search || ''}"
+            class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+            title="Export CSV"
+        >
+            <Download size={16} />
+        </a>
     </div>
 
     <div
@@ -152,7 +159,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-500/60 text-xs font-bold text-white shadow-sm"
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-xs font-bold text-white shadow-sm"
                                     >
                                         <MapPin size={16} />
                                     </div>
@@ -174,7 +181,9 @@
                                 >{formatDate(province.created_at)}</td
                             >
                             <td class="px-6 py-4">
-                                <div class="flex items-center justify-end gap-2">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
                                     {#if canUpdate}
                                         <Link
                                             href={`/provinces/${province.id}/edit`}

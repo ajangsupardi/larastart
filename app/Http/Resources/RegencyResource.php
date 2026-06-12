@@ -2,9 +2,17 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read int $province_id
+ * @property-read ProvinceResource|null $province
+ * @property-read Carbon $created_at
+ */
 class RegencyResource extends JsonResource
 {
     public function toArray(Request $request): array

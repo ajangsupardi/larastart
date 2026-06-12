@@ -23,22 +23,17 @@ class SearchController extends Controller
 
             if ($hasUserRead) {
                 $users = User::query()
-                    ->when(! $hasUserRead, fn ($q) => $q
-                        ->where(function ($subQ) {
-                            $subQ->where('created_by', auth()->id())
-                                ->orWhere('id', auth()->id());
-                        }))
                     ->where(function ($q) use ($query) {
                         $q->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($query).'%'])
                             ->orWhereRaw('LOWER(email) LIKE ?', ['%'.strtolower($query).'%']);
                     })
                     ->limit(5)
                     ->get()
-                    ->map(fn ($user) => [
-                        'label' => $user->name,
-                        'description' => $user->email,
+                    ->map(fn ($foundUser) => [
+                        'label' => $foundUser->name,
+                        'description' => $foundUser->email,
                         'href' => $hasUserEdit
-                            ? route('users.edit', $user)
+                            ? route('users.edit', $foundUser)
                             : route('users.index'),
                         'type' => 'user',
                     ]);
@@ -48,8 +43,6 @@ class SearchController extends Controller
 
             if ($hasRoleRead) {
                 $roles = Role::query()
-                    ->when(! $hasRoleRead, fn ($q) => $q
-                        ->where('created_by', auth()->id()))
                     ->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($query).'%'])
                     ->limit(5)
                     ->get()

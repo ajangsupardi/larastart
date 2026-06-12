@@ -63,15 +63,23 @@ class DownloadKodepos extends Command
 
         $handle = fopen($csvPath, 'w');
 
-        // Header
-        fputcsv($handle, ['kodepos', 'desa', 'kecamatan', 'kab', 'provinsi']);
+        if ($handle === false) {
+            $this->error("Failed to open file for writing: {$csvPath}");
 
-        // Data
-        foreach ($rows as $row) {
-            fputcsv($handle, $row);
+            return self::FAILURE;
         }
 
-        fclose($handle);
+        try {
+            // Header
+            fputcsv($handle, ['kodepos', 'desa', 'kecamatan', 'kab', 'provinsi']);
+
+            // Data
+            foreach ($rows as $row) {
+                fputcsv($handle, $row);
+            }
+        } finally {
+            fclose($handle);
+        }
 
         $this->info("Downloaded and saved {$csvPath}");
         $this->info('Total rows: '.count($rows));

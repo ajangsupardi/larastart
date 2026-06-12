@@ -18,12 +18,7 @@
     ]}
 >
     <div class="mx-auto max-w-2xl">
-        <Form
-            action="/villages"
-            method="post"
-            resetOnSuccess
-            setDefaultsOnSuccess
-        >
+        <Form action="/villages" method="post" setDefaultsOnSuccess>
             {#snippet children({ errors, processing, wasSuccessful })}
                 <div
                     class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"

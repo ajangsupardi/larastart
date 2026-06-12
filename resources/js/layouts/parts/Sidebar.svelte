@@ -10,6 +10,8 @@
         Landmark,
         Home,
         Briefcase,
+        Activity,
+        Trash2,
         ChevronLeft,
         ChevronRight,
         X,
@@ -28,19 +30,96 @@
         href: string;
         icon: typeof LayoutDashboard;
         group?: string;
+        color?: string;
+    };
+
+    const groupColors: Record<string, string> = {
+        Main: 'text-blue-500 dark:text-blue-400',
+        'Access Control': 'text-emerald-500 dark:text-emerald-400',
+        Geography: 'text-amber-500 dark:text-amber-400',
+        Reference: 'text-purple-500 dark:text-purple-400',
+        System: 'text-gray-500 dark:text-gray-400',
     };
 
     let {
         items = [
-            { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, group: 'Main' },
-            { label: 'Users', href: '/users', icon: Users, group: 'Access Control' },
-            { label: 'Roles', href: '/roles', icon: ShieldCheck, group: 'Access Control' },
-            { label: 'Provinces', href: '/provinces', icon: MapPin, group: 'Geography' },
-            { label: 'Regencies', href: '/regencies', icon: Building2, group: 'Geography' },
-            { label: 'Districts', href: '/districts', icon: Landmark, group: 'Geography' },
-            { label: 'Villages', href: '/villages', icon: Home, group: 'Geography' },
-            { label: 'Occupations', href: '/occupations', icon: Briefcase, group: 'Reference' },
-            { label: 'Settings', href: '#', icon: Settings, group: 'System' },
+            {
+                label: 'Dashboard',
+                href: '/dashboard',
+                icon: LayoutDashboard,
+                group: 'Main',
+                color: groupColors['Main'],
+            },
+            {
+                label: 'Users',
+                href: '/users',
+                icon: Users,
+                group: 'Access Control',
+                color: groupColors['Access Control'],
+            },
+            {
+                label: 'Roles',
+                href: '/roles',
+                icon: ShieldCheck,
+                group: 'Access Control',
+                color: groupColors['Access Control'],
+            },
+            {
+                label: 'Provinces',
+                href: '/provinces',
+                icon: MapPin,
+                group: 'Geography',
+                color: groupColors['Geography'],
+            },
+            {
+                label: 'Regencies',
+                href: '/regencies',
+                icon: Building2,
+                group: 'Geography',
+                color: groupColors['Geography'],
+            },
+            {
+                label: 'Districts',
+                href: '/districts',
+                icon: Landmark,
+                group: 'Geography',
+                color: groupColors['Geography'],
+            },
+            {
+                label: 'Villages',
+                href: '/villages',
+                icon: Home,
+                group: 'Geography',
+                color: groupColors['Geography'],
+            },
+            {
+                label: 'Occupations',
+                href: '/occupations',
+                icon: Briefcase,
+                group: 'Reference',
+                color: groupColors['Reference'],
+            },
+            {
+                label: 'Audit Log',
+                href: '/audit-log',
+                icon: Activity,
+                group: 'System',
+                color: groupColors['System'],
+            },
+            {
+                label: 'Trash',
+                href: '/trash/users',
+                icon: Trash2,
+                group: 'System',
+                color: groupColors['System'],
+            },
+            {
+                label: 'Settings',
+                href: '/settings',
+                icon: Settings,
+                group: 'System',
+                color: groupColors['System'],
+            },
         ] as NavItem[],
     } = $props();
 
@@ -83,6 +162,14 @@
 
             if (item.href === '/occupations') {
                 return canViewOccupations;
+            }
+
+            if (item.href === '/audit-log') {
+                return canViewUsers;
+            }
+
+            if (item.href === '/trash/users') {
+                return canViewUsers;
             }
 
             return true;
@@ -176,9 +263,11 @@
     </div>
 
     <nav class="flex-1 overflow-y-auto p-3">
-        {#each groupedItems as group, gi}
+        {#each groupedItems as group, gi (gi)}
             {#if gi > 0}
-                <div class="my-2 border-t border-gray-200 dark:border-gray-800"></div>
+                <div
+                    class="my-2 border-t border-gray-200 dark:border-gray-800"
+                ></div>
             {/if}
             {#if !$sidebarCollapsed && group.group}
                 <p
@@ -204,7 +293,15 @@
                             $sidebarCollapsed && 'justify-center px-0',
                         )}
                     >
-                        <item.icon size={20} class="shrink-0" />
+                        <item.icon
+                            size={20}
+                            class={cn(
+                                'shrink-0',
+                                page.url === item.href
+                                    ? 'text-brand dark:text-brand'
+                                    : item.color,
+                            )}
+                        />
                         {#if !$sidebarCollapsed}
                             <span>{item.label}</span>
                         {/if}

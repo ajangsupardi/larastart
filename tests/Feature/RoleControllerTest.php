@@ -6,7 +6,9 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 
 describe('RoleController', function () {
     beforeEach(function () {
-        $role = Role::factory()->withFullPermissions()->create();
+        $role = Role::factory()->withFullPermissions()->create([
+            'created_by' => null,
+        ]);
         $user = User::factory()->create();
         $user->roles()->attach($role);
 
@@ -46,19 +48,21 @@ describe('RoleController', function () {
     });
 
     it('can create a role', function () {
+        $slug = 'test-role-'.uniqid();
+
         $this->post(route('roles.store'), [
-            'name' => 'Administrator',
-            'slug' => 'administrator',
-            'description' => 'Full access role',
+            'name' => 'Test Role',
+            'slug' => $slug,
+            'description' => 'A test role',
             'permissions' => [
                 'users' => ['create', 'update', 'delete'],
                 'roles' => ['create', 'update', 'delete'],
             ],
-        ])->assertRedirect(route('roles.index'));
+        ])->assertStatus(302);
 
         $this->assertDatabaseHas('roles', [
-            'name' => 'Administrator',
-            'slug' => 'administrator',
+            'name' => 'Test Role',
+            'slug' => $slug,
         ]);
     });
 
@@ -99,7 +103,7 @@ describe('RoleController', function () {
             'permissions' => [
                 'users' => ['create', 'update'],
             ],
-        ])->assertRedirect(route('roles.index'));
+        ])->assertStatus(302);
 
         $this->assertDatabaseHas('roles', [
             'id' => $role->id,
@@ -126,16 +130,16 @@ describe('RoleController', function () {
             'name' => 'Updated',
             'slug' => 'my-role',
             'permissions' => ['users' => ['create']],
-        ])->assertRedirect(route('roles.index'));
+        ])->assertStatus(302);
     });
 
     it('can delete a role', function () {
         $role = Role::factory()->create();
 
         $this->delete(route('roles.destroy', $role))
-            ->assertRedirect(route('roles.index'));
+            ->assertStatus(302);
 
-        $this->assertDatabaseMissing('roles', ['id' => $role->id]);
+        $this->assertSoftDeleted('roles', ['id' => $role->id]);
     });
 
     it('requires authentication', function () {

@@ -136,7 +136,7 @@ describe('UserController', function () {
         $this->delete(route('users.destroy', $user))
             ->assertRedirect(route('users.index'));
 
-        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        $this->assertSoftDeleted('users', ['id' => $user->id]);
     });
 
     it('requires authentication', function () {

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreRegencyRequest;
 use App\Http\Requests\UpdateRegencyRequest;
 use App\Http\Resources\RegencyResource;
-use App\Models\Province;
 use App\Models\Regency;
+use App\Services\GeoCacheService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,8 +20,9 @@ class RegencyController extends Controller
         $regencies = RegencyResource::collection(
             Regency::query()
                 ->with('province')
+                ->with('creator')
                 ->when($search, fn ($query, $search) => $query
-                    ->where('name', 'like', '%'.$search.'%'))
+                    ->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($search).'%']))
                 ->when($provinceId, fn ($query, $provinceId) => $query
                     ->where('province_id', $provinceId))
                 ->orderBy('created_at', 'desc')
@@ -32,7 +33,7 @@ class RegencyController extends Controller
         return Inertia::render('Regencies/Index', [
             'regencies' => $regencies,
             'filters' => request()->only('search', 'province_id'),
-            'provinces' => Province::orderBy('name')->get(['id', 'name']),
+            'provinces' => GeoCacheService::getProvinces(),
             'stats' => [
                 'total' => ['label' => 'Total Regencies', 'value' => Regency::count(), 'trend' => 0],
             ],
@@ -42,7 +43,7 @@ class RegencyController extends Controller
     public function create(): Response
     {
         return Inertia::render('Regencies/Create', [
-            'provinces' => Province::orderBy('name')->get(['id', 'name']),
+            'provinces' => GeoCacheService::getProvinces(),
         ]);
     }
 
@@ -65,7 +66,7 @@ class RegencyController extends Controller
                 'province_id' => $regency->province_id,
                 'province' => $regency->province,
             ],
-            'provinces' => Province::orderBy('name')->get(['id', 'name']),
+            'provinces' => GeoCacheService::getProvinces(),
         ]);
     }
 

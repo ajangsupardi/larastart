@@ -1,6 +1,13 @@
 <script lang="ts">
     import { Link, router, usePage } from '@inertiajs/svelte';
-    import { Search, Trash2, Pencil, Lock, Users as UsersIcon } from '@lucide/svelte';
+    import {
+        Search,
+        Trash2,
+        Pencil,
+        Lock,
+        Users as UsersIcon,
+        Download,
+    } from '@lucide/svelte';
     import DeleteConfirmModal from '@/components/DeleteConfirmModal.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
@@ -34,7 +41,6 @@
     const canCreate = $derived(permissions.users?.includes('create') ?? false);
     const canUpdate = $derived(permissions.users?.includes('update') ?? false);
     const canDelete = $derived(permissions.users?.includes('delete') ?? false);
-    const canDeleteUser = $derived((userId: number) => canDelete && userId !== currentUserId);
 
     // svelte-ignore state_referenced_locally
     let search = $state.raw(filters.search ?? '');
@@ -120,6 +126,13 @@
                 oninput={onSearchInput}
                 class="w-full border-0 bg-transparent py-1.5 text-sm outline-none placeholder:text-gray-400 dark:text-gray-100"
             />
+            <a
+                href="/export/users?search={search || ''}"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                title="Export CSV"
+            >
+                <Download size={16} />
+            </a>
         </div>
     </div>
 
@@ -174,7 +187,7 @@
                                         />
                                     {:else}
                                         <div
-                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand/60 text-xs font-bold text-white shadow-sm"
+                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-xs font-bold text-white shadow-sm"
                                         >
                                             {getInitials(user.name)}
                                         </div>
@@ -232,7 +245,9 @@
                                 >{formatDate(user.created_at)}</td
                             >
                             <td class="px-6 py-4">
-                                <div class="flex items-center justify-end gap-2">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
                                     {#if canUpdate}
                                         <Link
                                             href={`/users/${user.id}/edit`}

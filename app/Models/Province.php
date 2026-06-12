@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\ProvinceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Province extends Model
 {
+    /** @use HasFactory<ProvinceFactory> */
     use HasFactory;
 
     protected $fillable = ['name', 'code', 'created_by'];

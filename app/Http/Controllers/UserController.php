@@ -33,6 +33,7 @@ class UserController extends Controller
                     }))
                 ->orderBy('created_at', 'desc')
                 ->with('roles')
+                ->with('creator')
                 ->paginate(10)
                 ->withQueryString()
         );

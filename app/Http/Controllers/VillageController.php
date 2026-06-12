@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVillageRequest;
 use App\Http\Requests\UpdateVillageRequest;
 use App\Http\Resources\VillageResource;
-use App\Models\District;
 use App\Models\Village;
+use App\Services\GeoCacheService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,20 +20,21 @@ class VillageController extends Controller
         $villages = VillageResource::collection(
             Village::query()
                 ->with('district.regency.province')
+                ->with('creator')
                 ->when($search, fn ($query, $search) => $query
-                    ->where('name', 'like', '%'.$search.'%')
-                    ->orWhere('postal_code', 'like', '%'.$search.'%'))
+                    ->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($search).'%'])
+                    ->orWhereRaw('LOWER(postal_code) LIKE ?', ['%'.strtolower($search).'%']))
                 ->when($districtId, fn ($query, $districtId) => $query
                     ->where('district_id', $districtId))
                 ->orderBy('created_at', 'desc')
-                ->paginate(20)
+                ->paginate(10)
                 ->withQueryString()
         );
 
         return Inertia::render('Villages/Index', [
             'villages' => $villages,
             'filters' => request()->only('search', 'district_id'),
-            'districts' => District::orderBy('name')->get(['id', 'name']),
+            'districts' => GeoCacheService::getDistricts(),
             'stats' => [
                 'total' => ['label' => 'Total Villages', 'value' => Village::count(), 'trend' => 0],
             ],
@@ -43,7 +44,7 @@ class VillageController extends Controller
     public function create(): Response
     {
         return Inertia::render('Villages/Create', [
-            'districts' => District::orderBy('name')->get(['id', 'name']),
+            'districts' => GeoCacheService::getDistricts(),
         ]);
     }
 
@@ -67,7 +68,7 @@ class VillageController extends Controller
                 'district_id' => $village->district_id,
                 'district' => $village->district,
             ],
-            'districts' => District::orderBy('name')->get(['id', 'name']),
+            'districts' => GeoCacheService::getDistricts(),
         ]);
     }
 

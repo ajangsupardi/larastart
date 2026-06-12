@@ -6,7 +6,7 @@ use App\Http\Requests\StoreDistrictRequest;
 use App\Http\Requests\UpdateDistrictRequest;
 use App\Http\Resources\DistrictResource;
 use App\Models\District;
-use App\Models\Regency;
+use App\Services\GeoCacheService;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,19 +20,20 @@ class DistrictController extends Controller
         $districts = DistrictResource::collection(
             District::query()
                 ->with('regency.province')
+                ->with('creator')
                 ->when($search, fn ($query, $search) => $query
-                    ->where('name', 'like', '%'.$search.'%'))
+                    ->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($search).'%']))
                 ->when($regencyId, fn ($query, $regencyId) => $query
                     ->where('regency_id', $regencyId))
                 ->orderBy('created_at', 'desc')
-                ->paginate(20)
+                ->paginate(10)
                 ->withQueryString()
         );
 
         return Inertia::render('Districts/Index', [
             'districts' => $districts,
             'filters' => request()->only('search', 'regency_id'),
-            'regencies' => Regency::orderBy('name')->get(['id', 'name']),
+            'regencies' => GeoCacheService::getRegencies(),
             'stats' => [
                 'total' => ['label' => 'Total Districts', 'value' => District::count(), 'trend' => 0],
             ],
@@ -42,7 +43,7 @@ class DistrictController extends Controller
     public function create(): Response
     {
         return Inertia::render('Districts/Create', [
-            'regencies' => Regency::orderBy('name')->get(['id', 'name']),
+            'regencies' => GeoCacheService::getRegencies(),
         ]);
     }
 
@@ -65,7 +66,7 @@ class DistrictController extends Controller
                 'regency_id' => $district->regency_id,
                 'regency' => $district->regency,
             ],
-            'regencies' => Regency::orderBy('name')->get(['id', 'name']),
+            'regencies' => GeoCacheService::getRegencies(),
         ]);
     }
 

@@ -2,6 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\District;
+use App\Models\Occupation;
+use App\Models\Province;
+use App\Models\Regency;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Village;
+use App\Observers\AuditObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureInertiaErrorHandling();
+        $this->registerObservers();
     }
 
     /**
@@ -64,5 +73,19 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             }
         });
+    }
+
+    /**
+     * Register Eloquent model observers for audit logging.
+     */
+    protected function registerObservers(): void
+    {
+        User::observe(AuditObserver::class);
+        Role::observe(AuditObserver::class);
+        Province::observe(AuditObserver::class);
+        Regency::observe(AuditObserver::class);
+        District::observe(AuditObserver::class);
+        Village::observe(AuditObserver::class);
+        Occupation::observe(AuditObserver::class);
     }
 }

@@ -16,11 +16,11 @@ class OccupationController extends Controller
         $search = request('search');
 
         $occupations = OccupationResource::collection(
-            Occupation::query()
+            Occupation::query()->with('creator')
                 ->when($search, fn ($query, $search) => $query
                     ->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($search).'%']))
                 ->orderBy('created_at', 'desc')
-                ->paginate(20)
+                ->paginate(10)
                 ->withQueryString()
         );
 

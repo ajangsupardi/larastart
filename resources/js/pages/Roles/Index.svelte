@@ -7,6 +7,7 @@
         Trash2,
         Users as UsersIcon,
         Lock,
+        Download,
     } from '@lucide/svelte';
     import DeleteConfirmModal from '@/components/DeleteConfirmModal.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
@@ -108,6 +109,13 @@
                 oninput={onSearchInput}
                 class="w-full border-0 bg-transparent py-1.5 text-sm outline-none placeholder:text-gray-400 dark:text-gray-100"
             />
+            <a
+                href="/export/roles?search={search || ''}"
+                class="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                title="Export CSV"
+            >
+                <Download size={16} />
+            </a>
         </div>
     </div>
 
@@ -147,7 +155,7 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     <div
-                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-500/60 text-xs font-bold text-white shadow-sm"
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-xs font-bold text-white shadow-sm"
                                     >
                                         <ShieldCheck size={18} />
                                     </div>
@@ -179,7 +187,9 @@
                                 >{formatDate(role.created_at)}</td
                             >
                             <td class="px-6 py-4">
-                                <div class="flex items-center justify-end gap-2">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
                                     {#if canUpdate}
                                         <Link
                                             href={`/roles/${role.id}/edit`}

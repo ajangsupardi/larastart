@@ -1,8 +1,8 @@
 <script lang="ts">
     import { Form } from '@inertiajs/svelte';
     import { Camera, LoaderCircle, User, Mail, Lock } from '@lucide/svelte';
-    import Input from '@/components/Input.svelte';
     import AvatarCropModal from '@/components/AvatarCropModal.svelte';
+    import Input from '@/components/Input.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
 
@@ -37,26 +37,34 @@
     function onFileSelected(e: Event) {
         const input = e.target as HTMLInputElement;
         const file = input.files?.[0];
-        if (!file) return;
+
+        if (!file) {
+            return;
+        }
 
         const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
         if (!validTypes.includes(file.type)) {
             alert('Only PNG, JPG, and JPEG files are allowed.');
             input.value = '';
+
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
             alert('File size must be less than 5MB.');
             input.value = '';
+
             return;
         }
 
         const reader = new FileReader();
+
         reader.onload = (e) => {
             selectedImageSrc = e.target?.result as string;
             showCropModal = true;
         };
+
         reader.readAsDataURL(file);
         input.value = '';
     }
@@ -82,7 +90,7 @@
 >
     <div class="mx-auto max-w-2xl">
         <Form action="/profile" method="post">
-            {#snippet children({ errors, processing, wasSuccessful })}
+            {#snippet children({ errors, processing })}
                 <input type="hidden" name="_method" value="put" />
 
                 <!-- User Avatar Preview -->
@@ -121,10 +129,14 @@
                     </div>
 
                     <div class="min-w-0">
-                        <h2 class="truncate text-lg font-bold text-gray-900 dark:text-gray-100">
+                        <h2
+                            class="truncate text-lg font-bold text-gray-900 dark:text-gray-100"
+                        >
                             {user.name}
                         </h2>
-                        <p class="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400">
+                        <p
+                            class="mt-0.5 truncate text-sm text-gray-500 dark:text-gray-400"
+                        >
                             {user.roles?.join(', ') ?? 'No roles'}
                         </p>
                     </div>

@@ -6,7 +6,6 @@
         LogOut,
         Moon,
         Sun,
-        Bell,
         User,
         Users,
         LayoutDashboard,
@@ -16,6 +15,7 @@
     import { onMount } from 'svelte';
     import type { Component } from 'svelte';
     import { fly, fade } from 'svelte/transition';
+    import NotificationBell from '@/components/NotificationBell.svelte';
     import { cn } from '@/lib/utils';
     import {
         openSearch,
@@ -343,15 +343,7 @@
         </button>
 
         <!-- Notification bell -->
-        <button
-            class="relative rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-            title="Notifications"
-        >
-            <Bell size={18} />
-            <span
-                class="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-brand ring-2 ring-white dark:ring-gray-950"
-            ></span>
-        </button>
+        <NotificationBell />
 
         <!-- User menu -->
         {#if page.props.auth?.user}

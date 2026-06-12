@@ -8,8 +8,8 @@
         Lock,
         Camera,
     } from '@lucide/svelte';
-    import Input from '@/components/Input.svelte';
     import AvatarCropModal from '@/components/AvatarCropModal.svelte';
+    import Input from '@/components/Input.svelte';
     import DashboardLayout from '@/layouts/DashboardLayout.svelte';
     import { cn } from '@/lib/utils';
 
@@ -25,26 +25,34 @@
     function onFileSelected(e: Event) {
         const input = e.target as HTMLInputElement;
         const file = input.files?.[0];
-        if (!file) return;
+
+        if (!file) {
+            return;
+        }
 
         const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
         if (!validTypes.includes(file.type)) {
             alert('Only PNG, JPG, and JPEG files are allowed.');
             input.value = '';
+
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
             alert('File size must be less than 5MB.');
             input.value = '';
+
             return;
         }
 
         const reader = new FileReader();
+
         reader.onload = (e) => {
             selectedImageSrc = e.target?.result as string;
             showCropModal = true;
         };
+
         reader.readAsDataURL(file);
         input.value = '';
     }
@@ -78,8 +86,8 @@
     ]}
 >
     <div class="mx-auto max-w-2xl">
-        <Form action="/users" method="post" resetOnSuccess setDefaultsOnSuccess>
-            {#snippet children({ errors, processing, wasSuccessful })}
+        <Form action="/users" method="post">
+            {#snippet children({ errors, processing })}
                 <!-- Avatar -->
                 <div
                     class="mb-6 flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"
@@ -107,10 +115,14 @@
                         />
                     </div>
                     <div>
-                        <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <h3
+                            class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                        >
                             Profile Photo
                         </h3>
-                        <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                        <p
+                            class="mt-0.5 text-sm text-gray-500 dark:text-gray-400"
+                        >
                             Optional. Crop to 400×400 on next step.
                         </p>
                     </div>

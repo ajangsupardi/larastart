@@ -43,6 +43,11 @@ class RoleFactory extends Factory
             'permissions' => [
                 'users' => ['create', 'read', 'update', 'delete'],
                 'roles' => ['create', 'read', 'update', 'delete'],
+                'provinces' => ['create', 'read', 'update', 'delete'],
+                'regencies' => ['create', 'read', 'update', 'delete'],
+                'districts' => ['create', 'read', 'update', 'delete'],
+                'villages' => ['create', 'read', 'update', 'delete'],
+                'occupations' => ['create', 'read', 'update', 'delete'],
             ],
         ]);
     }

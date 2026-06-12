@@ -22,6 +22,7 @@ class ProvinceController extends Controller
                         $q->whereRaw('LOWER(name) LIKE ?', ['%'.strtolower($search).'%'])
                             ->orWhereRaw('LOWER(code) LIKE ?', ['%'.strtolower($search).'%']);
                     }))
+                ->with('creator')
                 ->orderBy('created_at', 'desc')
                 ->paginate(10)
                 ->withQueryString()

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\RegencyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Regency extends Model
 {
+    /** @use HasFactory<RegencyFactory> */
     use HasFactory;
 
     protected $fillable = ['name', 'province_id', 'created_by'];
